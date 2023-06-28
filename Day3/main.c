@@ -532,8 +532,81 @@ void work6() {
     }
 }
 
+int replacesubstr_heima(char *src, char **dst, char *sub, char *new_sub) {
+
+    if(src == NULL || dst == NULL || sub == NULL || new_sub == NULL) {
+        return -1;
+    }
+
+    char *start = src;
+    char *p = NULL;
+    char tmp[512] = {0};
+    int len = 0;
+
+    do {
+        p = strstr(start, sub);
+        if(p != NULL) {
+            len = 0;
+            len = p - start;
+            if(len > 0) {
+                strncat(tmp, start, len);
+            }
+            strncat(tmp, new_sub, strlen(new_sub));
+            start = p + strlen(sub);
+        }
+        else {
+            strcat(tmp, start);
+            break;
+        }
+    } while(*start != '\0');
+
+    char *buf = (char *)malloc(strlen(tmp) + 1);
+    strcpy(buf, tmp);
+    *dst = buf;
+
+    return 0;
+}
+
+void freeBuf(char *buf) {
+    free(buf);
+    buf = NULL;
+}
+
+void freeBuf2(char **buf) {
+    char *tmp = *buf;
+    if(tmp != NULL) {
+        free(tmp);
+    }
+    *buf = NULL;
+}
+
+void work5_heima() {
+    char *p = "abcd11111abcd2222abcdqqqqq";
+    char *buf = NULL;  // 在replace_heima函数中分配空间
+    int ret = 0;
+    char sub[] = "abcd";
+    char new_sub[] = "f";
+    ret = replacesubstr_heima(p, &buf, sub, new_sub);
+    if(ret != 0) {
+        printf("replacesubstr err: %d\r\n", ret);
+        return;
+    }
+    printf("p = %s\r\n", p);
+    printf("buf = %s\r\n", buf);
+//    if(buf != NULL) {
+//        free(buf);
+//        buf = NULL;
+//    }
+//    freeBuf(buf);
+    freeBuf2(&buf);
+    if(buf != NULL) {
+        printf("buf != NULL\r\n");
+        free(buf);
+    }
+}
+
 int main() {
-    work6();
+    work5_heima();
     printf("Hello, World!\n");
     return 0;
 }
