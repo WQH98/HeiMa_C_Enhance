@@ -410,7 +410,7 @@ int replaceSubstr(char *src, char **dst, char *sub, char *new_sub) {
 }
 
 void work5(void) {
-    char *str = "abcd11111abcd2222abcdqqqqq";
+    char *str = "2233abcd11111abcd2222abcdqqqqq";
     char *dst = NULL;
     char sub[] = "abcd";
     char new_sub[] = "dcba";
@@ -605,8 +605,144 @@ void work5_heima() {
     }
 }
 
+int spitString_heima(const char *str, char c, char buf[10][30], int *count) {
+
+    if(str == NULL || buf == NULL || count == NULL) {
+        return -1;
+    }
+
+    const char *start = str;
+    char *p = NULL;
+    int i = 0;
+    do {
+        p = strchr(start, c);
+        if(p != NULL) {
+            int len = p - start;
+            strncpy(buf[i], start, len);
+            // 结束符
+            buf[i][len] = '\0';
+            i++;
+            // 重新设置起点位置
+            start = p + 2;
+        }
+        else {
+            break;
+        }
+    }while(*start != 0);
+
+    if(i == 0) {
+        return -2;
+    }
+    *count = i;
+    return 0;
+}
+
+
+
+int work6_heima(void) {
+
+    const char *p = "abcdef, acccd, aaaa, e3eeee, ssss,";
+    char buf[10][30] = {0};
+    int n = 0;
+    int i = 0;
+    int ret = 0;
+
+    ret = spitString_heima(p, ',', buf, &n);
+    if(ret != 0) {
+        printf("spitString err : %d\r\n", ret);
+        return ret;
+    }
+
+    for(i = 0; i < n; i++) {
+        printf("%s\r\n", buf[i]);
+    }
+    return 0;
+}
+
+char **getMem_heima(int n) {
+    char **buf = NULL;  // char *buf[n]
+    buf = (char **) malloc(n * sizeof(char *));
+    if(buf == NULL) {
+        return NULL;
+    }
+    int i;
+    for(i = 0; i < n; i++) {
+        buf[i] = (char *)malloc(30);
+    }
+
+    return buf;
+}
+
+int spitString_heima2(const char *str, char c, char **buf, int *count) {
+
+    if(str == NULL || buf == NULL || count == NULL) {
+        return -1;
+    }
+
+    const char *start = str;
+    char *p = NULL;
+    int i = 0;
+    do {
+        p = strchr(start, c);
+        if(p != NULL) {
+            int len = p - start;
+            strncpy(buf[i], start, len);
+            // 结束符
+            buf[i][len] = '\0';
+            i++;
+            // 重新设置起点位置
+            start = p + 2;
+        }
+        else {
+            break;
+        }
+    }while(*start != 0);
+
+    if(i == 0) {
+        return -2;
+    }
+    *count = i;
+    return 0;
+}
+
+
+int work6_heima2(void) {
+    const char *p = "abcdef, acccd, aaaa, e3eeee, ssss,";
+
+    char **buf = NULL;
+    int n = 0;
+    int i = 0;
+    int ret = 0;
+
+    buf = getMem_heima(6);
+
+    if(buf == NULL) {
+        printf("buf = NULL\r\n");
+        return -1;
+    }
+
+    ret = spitString_heima2(p, ',', buf, &n);
+    if(ret != 0) {
+        printf("spitString_heima2 err %d\r\n", ret);
+        return ret;
+    }
+    for(i = 0; i < n; i++) {
+        printf("%s\r\n", buf[i]);
+    }
+    for(i = 0; i < n; i++) {
+        free(buf[i]);
+        buf[i] = NULL;
+    }
+    if(buf != NULL) {
+        free(buf);
+        buf = NULL;
+    }
+
+    return 0;
+}
+
 int main() {
-    work5_heima();
+    work6_heima2();
     printf("Hello, World!\n");
     return 0;
 }
