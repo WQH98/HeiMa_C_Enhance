@@ -649,7 +649,7 @@ int work6_heima(void) {
 
     ret = spitString_heima(p, ',', buf, &n);
     if(ret != 0) {
-        printf("spitString err : %d\r\n", ret);
+        // printf("spitString err : %d\r\n", ret);
         return ret;
     }
 
@@ -694,6 +694,8 @@ int spitString_heima2(const char *str, char c, char **buf, int *count) {
             start = p + 2;
         }
         else {
+            strcpy(buf[i], start);
+            i++;
             break;
         }
     }while(*start != 0);
@@ -703,6 +705,46 @@ int spitString_heima2(const char *str, char c, char **buf, int *count) {
     }
     *count = i;
     return 0;
+}
+
+void freeBuf_heima(char **buf, int n) {
+    int i;
+    for(i = 0; i < n; i++) {
+        free(buf[i]);
+        buf[i] = NULL;
+    }
+    if(buf != NULL) {
+        free(buf);
+        buf = NULL;
+    }
+}
+
+void freeBuf_heima1(char ***tmp, int n) {
+    char **buf = *tmp;
+    int i = 0;
+    for(i = 0; i < n; i++) {
+        free(buf[i]);
+        buf[i] = NULL;
+    }
+
+    if(buf != NULL) {
+        free(buf);
+        buf = NULL;
+    }
+
+    *tmp = NULL;
+}
+
+void freeBuf_heima2(char ***buf, int n) {
+    int i = 0;
+    for(i = 0; i < n; i++) {
+        free(*buf[i]);
+        *buf[i] = NULL;
+    }
+    if(*buf != NULL) {
+        free(*buf);
+        buf = NULL;
+    }
 }
 
 
@@ -723,16 +765,132 @@ int work6_heima2(void) {
 
     ret = spitString_heima2(p, ',', buf, &n);
     if(ret != 0) {
-        printf("spitString_heima2 err %d\r\n", ret);
+        printf("spitString_heima2333 err %d\r\n", ret);
         return ret;
     }
     for(i = 0; i < n; i++) {
         printf("%s\r\n", buf[i]);
     }
+//    freeBuf_heima(buf, n);
+//    buf = NULL;
+    freeBuf_heima2(&buf, n);
+    if(buf != NULL) {
+        printf("buf != NULL\r\n");
+        free(buf);
+        buf = NULL;
+    }
+
+
+#if 0
     for(i = 0; i < n; i++) {
         free(buf[i]);
         buf[i] = NULL;
     }
+    if(buf != NULL) {
+        free(buf);
+        buf = NULL;
+    }
+#endif
+
+    return 0;
+}
+
+char **getMem_Test6_heima(int n, int m) {
+
+    if(n == 0 || m == 0) {
+        return NULL;
+    }
+
+    char **buf = (char **) malloc(n * sizeof(char *));
+    for(int i = 0; i < n; i++) {
+        buf[i] = (char *)malloc(m * sizeof(char));
+    }
+
+    return buf;
+}
+
+int spitString_Test6_heima(const char *str, char c, char **buf, int *count) {
+
+    if(str == NULL || buf == NULL || count == NULL) {
+        return -1;
+    }
+
+    const char *start = str;
+    char *p = NULL;
+
+    int i = 0;
+    do {
+        p = strchr(start, c);
+        if(p != NULL) {
+            strncpy(buf[i], start, p - start);
+            // 结束符
+            buf[i][p - start] = '\0';
+            i++;
+            start = p + 2;
+        }
+        else {
+
+            break;
+        }
+
+
+    } while(start != NULL);
+
+    *count = i;
+
+    return 0;
+}
+
+void freeBuf_test6_heima(char ***buf, int n) {
+#if 0
+    char **tmp = *buf;
+    for(int i = 0; i < n; i++) {
+        free(tmp[i]);
+        tmp[i] = NULL;
+    }
+    if(tmp != NULL) {
+        free(tmp);
+        tmp = NULL;
+    }
+    *buf = NULL;
+#else
+    for(int i = 0; i < n; i++) {
+        free((*buf)[i]);
+        (*buf)[i] = NULL;
+    }
+    if(*buf != NULL) {
+        free(*buf);
+        *buf = NULL;
+    }
+
+#endif
+}
+
+int Test6_heima(void) {
+    const char *p = "abcdef, acccd, aaaa, e3eeee, ssss,";
+    char **buf = NULL;
+    int n = 6, m = 30;
+    int ret = 0;
+    int count = 0;
+    buf = getMem_Test6_heima(n, m);
+
+    if(buf == NULL) {
+        printf("buf = NULL\r\n");
+        return -1;
+    }
+
+    ret = spitString_Test6_heima(p, ',', buf, &count);
+
+    if(ret != 0) {
+        printf("spitString_Test6_heima ret = %d\r\n", ret);
+        return ret;
+    }
+
+    for(int i = 0; i < count; i++) {
+        printf("%s\r\n", buf[i]);
+    }
+
+    freeBuf_test6_heima(&buf, n);
     if(buf != NULL) {
         free(buf);
         buf = NULL;
@@ -742,7 +900,10 @@ int work6_heima2(void) {
 }
 
 int main() {
-    work6_heima2();
+    Test6_heima();
     printf("Hello, World!\n");
     return 0;
 }
+
+
+
