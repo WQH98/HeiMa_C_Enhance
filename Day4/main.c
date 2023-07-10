@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "stdlib.h"
 
 // 1 一维数组
 void one_dimensional_array(void) {
@@ -293,13 +294,70 @@ void work3() {
     p = &a;   // 为何加&
     p = b;    // 为何不加&
 
+    /**
+     *  p = &a;
+     *  这行代码将指针'p'指向了数组'a' 因为'a'是一个一维数组 其类型是'int [10]'
+     *  所以需要使用'&'算数运算符获取'a'数组的地址 这样指针'p'就指向了数组'a'的首地址
+     *  p = b;
+     *  这行代码将指针'p'指向了数组'b'的首行（第一个一维数组） 在这种情况下 因为数组'b'是
+     *  一个二维数组 它的类型是'int[5][10]' 所以不需要使用'&'运算符 直接使用数组名'b'就
+     *  可以表示二维数组的首地址
+     *  总结起来 当将指针指向一个一维数组时 需要使用'&'运算符获取数组的地址 而当将指针指向
+     *  一个二维数组时候 直接使用数组名就可以表示二维数组的首地址 这是因为在C语言中 二维数组
+     *  名会被隐式转换成指向其首行的地址
+     */
+}
 
+void work4() {
+    int a[3][5] = {0};
+    /**
+     *  a -> a+0         代表a数组的第0行首地址
+     *  a + i            代表a数组的第i行首地址
+     *  *(a+i) -> a[i]   代表a数组的第i行元素的首地址
+     *  *(a+i)+j -> &a[i][j]      代表a数组的第i行第j列元素的地址
+     *  *(*(a+i)+j) -> a[i][j]    代表a数组的第i行第j列元素的值
+     */
+}
+
+void work5() {
+    // 如何在栈上开辟一个二维数组
+    int arr1[3][4];
+    int i = 0, j = 0;
+    for(i = 0; i < 3; i++) {
+        for(j = 0; j < 4; j++) {
+            arr1[i][j] = i * 4 + j;
+        }
+    }
+    for(i = 0; i < 3; i++) {
+        for(j = 0; j < 4; j++) {
+            printf("a[%d][%d] = %d\r\n", i, j, arr1[i][j]);
+        }
+    }
+    // 如何在堆上开辟一个二维数组
+    int **arr2 = (int **)malloc(3 * sizeof(int *));
+    for(i = 0; i < 3; i++) {
+        arr2[i] = (int *)malloc(4 * sizeof(int));
+    }
+    for(i = 0; i < 3; i++) {
+        for(j = 0; j < 4; j++) {
+            arr2[i][j] = i * 4 + j;
+        }
+    }
+    for(i = 0; i < 3; i++) {
+        for(j = 0; j < 4; j++) {
+            printf("a[%d][%d] = %d\r\n", i, j, arr2[i][j]);
+        }
+    }
+    for(i = 0; i < 3; i++) {
+        free(arr2[i]);
+    }
+    free(arr2);
 }
 
 // argc: 传参数的个数（包含可执行程序）
 // argv: 指针数组 指向输入的参数
 int main(int argc, char *argv[]) {
-    work2();
+    work5();
     printf("Hello, World!\n");
     printf("argc = %d\r\n", argc);
     for(int i = 0; i < argc; i++) {
