@@ -410,12 +410,82 @@ void work7() {
 }
 
 
+// 将字符串数组进行排序
+int sort(char **array1, int num1, char (*array2)[30], int num2, char ***myp3, int *num3) {
+
+    if(array1 == NULL || num1 <= 0 || array2 == NULL || num2 <= 0 || myp3 == NULL || num3 == NULL) {
+        return -1;
+    }
+
+    int len = num1 + num2;
+    int i = 0, j = 0;
+    char **buf = (char **)malloc(len * sizeof(char *));
+    for(i = 0; i < len; i++) {
+        buf[i] = (char *) malloc(30 * sizeof(char));
+    }
+
+    for(i = 0; i < len; i++) {
+        if(i < 3) {
+            strcpy(buf[i], array1[i]);
+        }
+        else {
+            strcpy(buf[i], array2[i - 3]);
+        }
+    }
+
+    for(i = 0; i < len; i++) {
+        for(j = i + 1; j < len; j++) {
+            if(strcmp(buf[i], buf[j]) > 0) {
+                char *tmp = buf[i];
+                buf[i] = buf[j];
+                buf[j] = tmp;
+            }
+        }
+    }
+    *myp3 = buf;
+    *num3 = len;
+    return 0;
+}
+
+void work8() {
+    int ret = 0;
+    char *p1[] = {"aa", "ccccccc", "bbbbbb"};
+    char buf2[10][30] = {"111111", "3333333", "222222"};
+    char **p3 = NULL;
+    int len1, len2, len3 = 0;
+    int i = 0;
+    len1 = sizeof(p1) / sizeof(*p1);
+    len2 = 3;
+
+    ret = sort(p1, len1, buf2, len2, &p3, &len3);
+
+    if(ret == 0) {
+        for(i = 0; i < len3; i++) {
+            printf("p3[%d] = %s\r\n", i, p3[i]);
+        }
+    }
+    else {
+        printf("ret err code = %d\r\n", ret);
+    }
+
+    if(p3 != NULL) {
+        for(i = 0; i < len3; i++) {
+            if(p3[i] != NULL) {
+                free(p3[i]);
+                p3[i] = NULL;
+            }
+        }
+        free(p3);
+        p3 = NULL;
+    }
+
+}
 
 
 // argc: 传参数的个数（包含可执行程序）
 // argv: 指针数组 指向输入的参数
 int main(int argc, char *argv[]) {
-    work7();
+    work8();
     printf("Hello, World!\n");
     printf("argc = %d\r\n", argc);
     for(int i = 0; i < argc; i++) {
