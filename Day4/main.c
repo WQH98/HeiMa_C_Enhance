@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "stdlib.h"
+#include <string.h>
 
 // 1 一维数组
 void one_dimensional_array(void) {
@@ -348,16 +349,73 @@ void work5() {
             printf("a[%d][%d] = %d\r\n", i, j, arr2[i][j]);
         }
     }
-    for(i = 0; i < 3; i++) {
-        free(arr2[i]);
+
+    if(arr2 != NULL) {
+        for(i = 0; i < 3; i++) {
+            if(arr2[i] != NULL) {
+                free(arr2[i]);
+                arr2[i] = NULL;
+            }
+        }
+        free(arr2);
+        arr2 = NULL;
     }
-    free(arr2);
 }
+
+void work6() {
+    /**
+     *  int main(int argc, char *argv[]);
+     *  argc代表系统传入主函数的参数的格数
+     *  argv是一个指针数组 代表传入进主函数的参数的数组
+     */
+}
+
+int work7_searchKeyTable(const char *table[], const int size, const char *key, int *pos) {
+    if(table == NULL || size <= 0 || key == NULL || pos == NULL) {
+        return -1;
+    }
+    int i = 0;
+
+    for(i = 0; i < size; i++) {
+        if(strcmp(table[i], key) == 0) {
+            *pos = i + 1;
+            return 0;
+        }
+
+    }
+    *pos = -1;
+    printf("the key is not found\r\n");
+    return -2;
+}
+
+void work7() {
+    // 找到数组中指定字符串的位置
+    const char *keywords[] = {
+    "while",
+    "case",
+    "static",
+    "do"
+    };
+
+    int keywords_n = sizeof(keywords)/ sizeof(keywords[0]);
+    int pos = 0;
+    int ret = work7_searchKeyTable(keywords, keywords_n, "while", &pos);
+
+    if(ret == 0) {
+        printf("pos = %d\r\n", pos);
+    }
+    else {
+        printf("ret err code = %d\r\n", ret);
+    }
+}
+
+
+
 
 // argc: 传参数的个数（包含可执行程序）
 // argv: 指针数组 指向输入的参数
 int main(int argc, char *argv[]) {
-    work5();
+    work7();
     printf("Hello, World!\n");
     printf("argc = %d\r\n", argc);
     for(int i = 0; i < argc; i++) {
