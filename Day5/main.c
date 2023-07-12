@@ -233,6 +233,7 @@ void structure_nested_with_a_level_pointer() {
 
 // 5、结构体套二级指针
 typedef struct {
+    int age;
     char **stu;
 } Teacher05;
 
@@ -395,6 +396,7 @@ int writeStuData(Teacher05 **q, int n, int m) {
             sprintf(buf, "tmp[%d].stu[%d]", i, j);
             strcpy(tmp[i].stu[j], buf);
         }
+        tmp[i].age = 20 + i;
     }
 
     return 0;
@@ -439,6 +441,27 @@ int freeTeacher(Teacher05 **q, int n, int m) {
     return 0;
 }
 
+int sortTeacher(Teacher05 *p, int n) {
+
+    if(p == NULL || n <= 0) {
+        return -1;
+    }
+    Teacher05 tmp;
+    int i = 0, j = 0;
+    for(i = 0; i < n - 1; i++) {
+        for(j = i + 1; j < n; j++) {
+            if(p[i].age < p[j].age) {
+                 tmp = p[i];
+                 p[i] = p[j];
+                 p[j] = tmp;
+            }
+        }
+    }
+
+
+    return 0;
+}
+
 void the_structure_is_reinforced_with_two_level_Pointers() {
     int ret = 0;
     Teacher05 *q = NULL;
@@ -452,6 +475,16 @@ void the_structure_is_reinforced_with_two_level_Pointers() {
         printf("writeStuData fail code = %d\r\n", ret);
         return;
     }
+    printf("after sort\r\n");
+    ret = printfTeacher(q, 3, 3);
+    if(ret != 0) {
+        printf("printfTeacher fail code = %d\r\n", ret);
+        return;
+    }
+
+    ret = sortTeacher(q, 3);
+
+    printf("sort end\r\n");
     ret = printfTeacher(q, 3, 3);
     if(ret != 0) {
         printf("printfTeacher fail code = %d\r\n", ret);
@@ -466,13 +499,100 @@ void the_structure_is_reinforced_with_two_level_Pointers() {
     if(q == NULL) {
         printf("q is NULL\r\n");
     }
-
-
 }
 
 
+// 06、结构体深拷贝和浅拷贝
+typedef struct {
+    char *name;
+    int age;
+} Teacher06;
+
+// 结构体中嵌套指针 而且动态分配内存
+// 同类型结构体变量赋值
+// 不同结构体成员指针变量指向同一块内存
+void structure_deep_copy_and_shallow_copy() {
+    Teacher06 t1;
+    t1.name = (char *)malloc(30);
+    strcpy(t1.name, "lily");
+    t1.age = 22;
+    Teacher06 t2;
+    t2 = t1;    // 属于浅拷贝
+    // 人为增加内容 重新拷贝一次 属于深拷贝
+    t2.name = (char *)malloc(30);
+    strcpy(t2.name, t1.name);
+    printf("t2.name = %s, t2.age = %d\r\n", t2.name, t2.age);
+
+    if(t1.name != NULL) {
+        free(t1.name);
+        t1.name = NULL;
+    }
+
+    // 当浅拷贝时 释放两次内存 程序会崩
+    if(t2.name != NULL) {
+        free(t2.name);
+        t2.name = NULL;
+    }
+
+ }
+
+// 07、结构体的偏移量
+// 结构体类型定义下来 内部的成员变量的内存布局已经确定
+typedef struct {
+    char name[64];
+    int age;
+    int id;
+} Teacher07;
+
+void the_offset_of_the_structure() {
+    Teacher07 t1;
+    Teacher07 *p = NULL;
+    p = &t1;
+    int n1 = (int)(&p->age) - (int)p;    // 相当于结构体首地址
+    printf("n1 = %d\r\n", n1);
+    int n2 = (int)&((Teacher07*)0)->age;   // 绝对0地址的偏移量
+    printf("n2 = %d\r\n", n2);
+}
+
+// 08、内存对齐测试
+void memory_alignment_test() {
+    struct {
+        double c;
+        int a;
+        short b;
+    } A;
+
+    /**
+     *  c : 8 * 0 = 0
+     *  a : 4 * 2 = 8
+     *  b : 2 * 6 = 12
+     *
+     *  c c c c c c c c
+     *  a a a a b b * *
+     */
+    printf("sizeof(A) = %d\r\n", sizeof(A));
+
+    struct {
+        int a;
+        double c;
+        short b;
+    } A1;
+
+    /**
+     *  a : 4 * 0 = 0
+     *  c : 8 * 1 = 8
+     *  b : 2 * 8 = 16
+     *
+     *  a a a a * * * *
+     *  c c c c c c c c
+     *  b b * * * * * *
+     */
+
+    printf("sizeof(A1) = %d\r\n", sizeof(A1));
+}
+
 int main() {
-    the_structure_is_reinforced_with_two_level_Pointers();
+    memory_alignment_test();
     printf("Hello, World!\n");
     return 0;
 }
