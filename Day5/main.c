@@ -591,6 +591,41 @@ void memory_alignment_test() {
     printf("sizeof(A1) = %d\r\n", sizeof(A1));
 }
 
+/**
+ *  work1
+ *  列出定义结构体变量的几种方式
+ *  1 先定义类型 再定义变量
+ *  struct Stu a;
+ *
+ *  2 定义类型的同时 定义变量
+ *  struct _Stu {
+ *      char name[32];
+ *      char tile[32];
+ *      int age;
+ *      char addr[50];
+ *  } c;
+ *
+ *  struct {
+ *      char name[32];
+ *      char tile[32];
+ *      int age;
+ *      char addr[50];
+ *  } e, f;
+ *
+ */
+
+
+
+/**
+ *  work2
+ *  同类型结构体变量是否可以相互赋值？会存在什么风险
+ *  答：可以相互赋值 相同类型的结构体变量可以相互赋值
+ *  会把成员1中的变量逐一拷贝到成员2中
+ *  是浅拷贝 两个成员没有关系
+ *  风险是会造成两个成员中的变量指向同一内存
+ *
+ */
+
 int main() {
     memory_alignment_test();
     printf("Hello, World!\n");
