@@ -623,11 +623,280 @@ void memory_alignment_test() {
  *  会把成员1中的变量逐一拷贝到成员2中
  *  是浅拷贝 两个成员没有关系
  *  风险是会造成两个成员中的变量指向同一内存
+ *  当成员变量是指针并且手动分配了内存就会出现这种情况
+ */
+
+
+/**
+ *  work3
+ *  练习结构体数组排序
+ *  从键盘输入3个学生的信息（姓名、学号、成绩） 存入一个结构体数组中 计算平均分 按成绩高低排序并输出
+ */
+
+typedef struct {
+    char name[50];
+    int id;
+    double score;
+} Stu;
+
+void intiStu(Stu *stu, int n) {
+    int i = 0;
+    for(i = 0; i < n; i++) {
+        printf("please enter stu%d's name : ", i);
+        scanf("%s", stu[i].name);
+        printf("please enter stu%d's id : ", i);
+        scanf("%d", &stu[i].id);
+        printf("please enter stu%d's socre : ", i);
+        scanf("%lf", &stu[i].score);
+    }
+}
+
+double aveStu(Stu *stu, int n) {
+    int i = 0;
+    double ave = 0;
+    for(i = 0; i < n; i++) {
+        ave += stu[i].score;
+    }
+    // 除法的时候要注意 相除的两个变量其中必须有一个是double类型的
+    // 下面的ave是double
+    // n可以不*1.0
+    return ave / (n * 1.0);
+}
+
+void sortStu(Stu *stu, int n) {
+    int i = 0, j = 0;
+    for(i = 0; i < n-1; i++) {
+        for(j = i+1; j < n; j++) {
+            if(stu[i].score < stu[j].score) {
+                Stu tmp = stu[i];
+                stu[i] = stu[j];
+                stu[j] = tmp;
+            }
+        }
+    }
+}
+
+void showStu(Stu *stu, int n) {
+    int i = 0;
+    for(i = 0; i < n; i++) {
+        printf("stu[%d] name = %s\r\n ", i, stu[i].name);
+        printf("stu[%d] id = %d\r\n ", i, stu[i].id);
+        printf("stu[%d] score = %lf\r\n ", i, stu[i].score);
+    }
+}
+
+void work3() {
+    Stu s[3];
+    int n = 3;
+    // 从键盘输入学生信息
+    intiStu(s, n);
+    // aveStu(s, 3)  :  平均分
+    printf("average score = %lf\r\n", aveStu(s, 3));
+    // 分数排序 降序
+    sortStu(s, n);
+    // 打印学生信息
+    showStu(s, n);
+}
+
+
+/**
+ *  work4
+ *  重写结构体嵌套一级指针老师和二级指针学生的代码
+ */
+
+// 结构体类型 每个导师有三个学生
+typedef struct {
+    char *tName; // 导师
+    char **stu;  // 学生
+    int age;
+} work4_Teacher;
+
+// 在createTeacher中分配空间
+int work4_createTeacher(work4_Teacher **p, int n1, int n2) {
+    if(p == NULL || n1 <= 0 || n2 <= 0) {
+        return -1;
+    }
+    work4_Teacher *tmp = NULL;
+    tmp = (work4_Teacher *)malloc(n1 * sizeof(work4_Teacher));
+    if(tmp == NULL) {
+        return -2;
+    }
+    int i = 0, j = 0;
+    for(i = 0; i < n1; i++) {
+        tmp[i].tName = (char *)malloc(30);
+        tmp[i].stu = (char **)malloc(n2 * sizeof(char *));
+        for(j = 0; j < n2; j++) {
+            tmp[i].stu[j] = (char *)malloc(30);
+        }
+    }
+    *p = tmp;
+    return 0;
+}
+
+// 给成员赋值
+void work4_initTeacher(work4_Teacher *p, int n1, int n2) {
+    int i = 0, j = 0;
+    char buf[50];
+    for(i = 0; i < n1; i++) {
+        p[i].age = i + 18;
+        sprintf(buf, "teacher%d", i);
+        strcpy(p[i].tName, buf);
+        for(j = 0; j < n2; j++) {
+            sprintf(buf, "teacher%d stu%d", i, j);
+            strcpy(p[i].stu[j], buf);
+        }
+    }
+}
+
+// 打印结构体成员信息
+void work4_printfTeacher(work4_Teacher *p, int n1, int n2) {
+    int i = 0, j = 0;
+    for(i = 0; i < n1; i++) {
+        printf("Teacher[%d].name = %s\r\n", i, p[i].tName);
+        for(j = 0; j < n2; j++) {
+                printf("Teacher[%d].stu[j] = %s\r\n", i, p[i].stu[j]);
+        }
+        printf("Teacher[%d].age = %d\r\n", i, p[i].age);
+    }
+}
+
+// 根据导师名字排序 降序
+void work4_sortTeacher(work4_Teacher *p, int n) {
+    int i = 0, j = 0;
+    for(i = 0; i < n-1; i++) {
+        for(j = i+1; j < n; j++) {
+            if(strcmp(p[i].tName, p[j].tName) < 0) {
+                work4_Teacher tmp = p[i];
+                p[i] = p[j];
+                p[j] = tmp;
+            }
+        }
+    }
+}
+
+// 释放空间 在函数内部把p赋值为NULL
+void work4_freeTeacher(work4_Teacher **p, int n1, int n2) {
+    work4_Teacher *tmp = *p;
+    int i = 0, j = 0;
+    if(tmp != NULL) {
+        for(i = 0; i < n1; i++) {
+           if(tmp[i].tName != NULL) {
+               free(tmp[i].tName);
+               tmp[i].tName = NULL;
+           }
+           if(tmp[i].stu != NULL) {
+               for(j = 0; j < n2; j++) {
+                   if(tmp[i].stu[j] != NULL) {
+                       free(tmp[i].stu[j]);
+                       tmp[i].stu[j] = NULL;
+                   }
+               }
+               free(tmp[i].stu);
+               tmp[i].stu = NULL;
+           }
+        }
+        free(tmp);
+        tmp = NULL;
+        *p = tmp;
+    }
+}
+
+
+void work4() {
+    int ret = 0;
+    int n1 = 3;   // 导师个数
+    int n2 = 3;   // 学生个数
+    work4_Teacher *p = NULL;
+
+    ret = work4_createTeacher(&p, n1, n2);
+    if(ret != 0) {
+        printf("work4_createTeacher err %d\r\n", ret);
+    }
+    work4_initTeacher(p, n1, n2);
+
+    // 打印成员 排序前
+    printf("after sort\r\n");
+    work4_printfTeacher(p, n1, n2);
+    // 根据导师名字排序 降序
+    work4_sortTeacher(p, n1);
+    // 打印成员 排序后
+    printf("end sort\r\n");
+    work4_printfTeacher(p, n1, n2);
+
+    // 释放空间 在函数内部把p赋值为NULL
+    work4_freeTeacher(&p, n1, n2);
+
+    if(p != NULL) {
+        printf("p is not NULL\r\n");
+    }
+}
+
+/**
+ * work6
+ * 分析以下结构体所占空间的大小
+ * typedef struct Stu {
+ *     char a[4];
+ *     int b;
+ *     double c;
+ *     short d;
+ * } Stu;
+ * #pragma pack(1)    // 1字节对齐   4 + 4 + 8 + 2 = 18
+ * #pragma pack(2)    // 2字节对齐
+ * a : 1 * 0 = 0
+ * b : 2 * 2 = 4   // 超过2字节 以2字节算
+ * c : 2 * 4 = 8   // 超过2字节 以2字节算
+ * d : 2 * 8 = 16
+ *
+ * a a
+ * a a
+ * b b
+ * b b
+ * c c
+ * c c
+ * c c
+ * c c
+ * d d
+ *
+ * sizeof(Stu) = 2 * 9 = 18
+ *
+ * #pragma pack(4)    // 4字节对齐
+ *
+ * a : 1 * 0 = 0
+ * b : 4 * 1 = 4
+ * c : 4 * 2 = 8    // 超过4字节 以4字节计算
+ * d : 2 * 8 = 16
+ *
+ * a a a a
+ * b b b b
+ * c c c c
+ * c c c c
+ * d d 0 0
+ *
+ * sizeof(Stu) = 4 * 5 = 20
+ *
+ * #pragma pack(8)    // 8字节对齐
+ *
+ * a : 1 * 0 = 0
+ * b : 4 * 1 = 4
+ * c : 8 * 1 = 8
+ * d : 2 * 8 = 16
+ *
+ * a a a a b b b b
+ * c c c c c c c c
+ * d d 0 0 0 0 0 0
+ *
+ * sizeof(Stu) = 3 * 8 = 24
+ *
+ * #pragma pack(16)    // 16字节对齐
+ *
+ * 由于结构体成员字节最大值为double 只有8字节 所以
+ * 指定16字节对齐无效 还是以8字节对齐 具体分析如上
+ * sizeof(Stu) = 3 * 8 = 24
  *
  */
 
 int main() {
-    memory_alignment_test();
+    work4();
     printf("Hello, World!\n");
     return 0;
 }
