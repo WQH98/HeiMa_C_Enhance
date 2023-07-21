@@ -736,7 +736,7 @@ int work4_createTeacher(work4_Teacher **p, int n1, int n2) {
 // 给成员赋值
 void work4_initTeacher(work4_Teacher *p, int n1, int n2) {
     int i = 0, j = 0;
-    char buf[50];
+    char buf[30];
     for(i = 0; i < n1; i++) {
         p[i].age = i + 18;
         sprintf(buf, "teacher%d", i);
