@@ -185,7 +185,6 @@ void read_and_write_files_by_line() {
 }
 
 // 4、按照块读写文件
-
 typedef struct {
     char name[50];
     int id;
@@ -261,8 +260,84 @@ void read_and_write_files_in_blocks() {
     my_fread("../test.txt");
 }
 
+// 5、按照格式化进行读写文件
+
+void my_fprintf(char *path) {
+    FILE *fp = NULL;
+    // 读写方式打开 没有这个文件就创建 有这个文件就清零重新写
+    fp = fopen(path, "w+");
+    if(fp == NULL) {
+        ferror("my_fprintf fopen");
+        return;
+    }
+
+    printf("Hello World%d\r\n", 2);
+    fprintf(stdout, "Hello World%d\r\n", 2);
+    fprintf(fp, "Hello World%d\r\n", 2);
+
+
+    if(fp != NULL) {
+        fclose(fp);
+        fp = NULL;
+    }
+}
+
+void my_fscanf(char *path) {
+    FILE *fp = NULL;
+    // 读写方式打开
+    fp = fopen(path, "r+");
+    if(fp == NULL) {
+        ferror("my_fscanf fopen");
+        return;
+    }
+
+    int a = 0;
+    fscanf(fp, "Hello World%d\r\n", &a);
+    printf("a = %d\r\n", a);
+
+    if(fp != NULL) {
+        fclose(fp);
+        fp = NULL;
+    }
+}
+
+void read_and_write_files_as_formatted() {
+    my_fprintf("../test.txt");
+    my_fscanf("../test.txt");
+}
+
+// 6、随机位置读文件
+void read_files_at_random_locations() {
+    FILE *fp = NULL;
+    fp = fopen("../test.txt", "w+");
+    if(fp == NULL) {
+        ferror("read_files_at_random_locations fopen");
+        return;
+    }
+
+    Stu s[3];
+    Stu tmp;  // 读第三个结构体
+
+    my_fwrite("../test.txt");
+
+    fseek(fp, 2 * sizeof(Stu), SEEK_SET);
+    // fseek(fp, -1 * sizeof(Stu), SEEK_END);
+    int ret = 0;
+    ret = fread(&tmp, sizeof(Stu), 1, fp);
+    if(ret == 1) {
+        printf("%s %d\r\n", tmp.name, tmp.id);
+    }
+
+    // 把文件光标移动到最开始的地方
+
+    if(fp != NULL) {
+        fclose(fp);
+        fp = NULL;
+    }
+}
+
 int main() {
-    read_and_write_files_in_blocks();
+    read_files_at_random_locations();
     printf("Hello, World!\n");
     return 0;
 }
