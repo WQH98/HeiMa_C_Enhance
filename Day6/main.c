@@ -336,8 +336,132 @@ void read_files_at_random_locations() {
     }
 }
 
+/**
+ *  work1
+ *  1、将一个未知大小的文件（如song.txt）全部读入（不是一行一行的读取）内存 并显示在桌面上
+ *  参考：fessk() ftell() rewind() fread() malloc()
+ */
+
+void work01() {
+    char *buf = NULL;
+    int maxsize = 1024;
+    buf = (char *)malloc(maxsize * sizeof(char));
+    FILE *fp = fopen("../work01.txt", "r+");
+    if(fp == NULL) {
+        printf("work01 fopen failed\r\n");
+        return;
+    }
+    fread(buf, maxsize, 1, fp);
+    printf("%s\r\n", buf);
+    if(fp != NULL) {
+        fclose(fp);
+        fp = NULL;
+    }
+    if(buf != NULL) {
+        free(buf);
+        buf = NULL;
+    }
+}
+
+/**
+ *  work02
+ *  2、实现配置文件读写的功能 key = value格式
+ *  a) 循环读每一行 如果此行包含key 则把key的value修改
+ *  b) 如果所有行都不包含key 则在文件结尾追加 key = value
+ *  c) 文件大小不能超过8K
+ *  d) 参考 fgets() strstr() sprintf() strcat() fprintf()
+ *          fputs() fseek() ftell() rewind()
+ */
+
+void work02() {
+    int cmd = 0;
+    char key[10] = {0};
+    char value[50] = {0};
+    char gets_buf[256] = {0};
+    int i = 0;
+    char *tmp = NULL;
+    int begin = 0;
+    int end = 0;
+    int gets_len_last = 0, gets_len_all = 0, gets_len_now = 0;
+    FILE *fp1 = NULL;
+    FILE *fp2 = NULL;
+    while(1) {
+        printf("===========================\r\n");
+        printf("1 write\r\n");
+        printf("2 read\r\n");
+        printf("3 cls\r\n");
+        printf("4 exit\r\n");
+        printf("===========================\r\n");
+        scanf("%d", &cmd);
+        switch(cmd) {
+            case 1: {
+                printf("please enter the key:");
+                scanf("%s", key);
+                printf("\r\n");
+                printf("please enter the value:");
+                scanf("%s", value);
+                printf("\r\n");
+                break;
+            }
+            case 2: {
+                printf("please enter the key:");
+                scanf("%s", key);
+                printf("\r\n");
+                fp2 = fopen("../work02.txt", "r+");
+                if(fp2 == NULL) {
+                    printf("read failed\r\n");
+                    break;
+                }
+
+                while(!feof(fp2)) {
+                    fgets(gets_buf, sizeof(gets_buf), fp2);
+                    tmp = strstr(gets_buf, key);
+                    if (tmp != NULL) {
+                        tmp += strlen(key) + 2;
+                        end = strlen(tmp) - 1;
+                        while (tmp[begin] == ' ') {
+                            begin++;
+                        }
+                        while (tmp[end] == ' ' || tmp[end] == '\n') {
+                            end--;
+                        }
+                        tmp += begin;
+                        char out_buf[50] = {0};
+                        strncpy(out_buf, tmp, end - begin + 1);
+                        printf("%s : %s len = %d\r\n", key, out_buf, end - begin + 1);
+                        begin = 0;
+                        end = 0;
+                        break;
+                    }
+                }
+
+                if(tmp == NULL) {
+                    printf("don't find the key\r\n");
+                }
+
+                if(fp2 != NULL) {
+                    fclose(fp2);
+                    fp2 = NULL;
+                }
+
+                break;
+            }
+            case 3: {
+                system("cls");
+                break;
+            }
+            default: {
+                exit(0);
+                break;
+            }
+        }
+    }
+}
+
 int main() {
-    read_files_at_random_locations();
-    printf("Hello, World!\n");
+    setbuf(stdout,NULL);
+    work02();
+    // printf("Hello, World!\n");
+    system("pause");
     return 0;
 }
