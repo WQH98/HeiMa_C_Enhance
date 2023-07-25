@@ -363,6 +363,44 @@ void work01() {
     }
 }
 
+void heima_work01() {
+    char *buf = NULL;
+    FILE *fp = NULL;
+    fp = fopen("../work01.txt", "r+");
+    if(fp == NULL) {
+        perror("heima_work01 fopen");
+        return;
+    }
+
+    fseek(fp, 0, SEEK_END);
+    long size = ftell(fp);
+    if(size > 0) {
+        buf = (char *)malloc(size + 1);
+        if(buf == NULL) {
+            goto FREE_BUF;
+        }
+    }
+
+    rewind(fp);
+
+    int ret = fread(buf, size, 1, fp);
+    buf[size] = 0;
+    if(ret == 1) {
+        printf("%s\r\n", buf);
+    }
+
+    FREE_BUF:
+    if(buf != NULL) {
+        free(buf);
+        buf = NULL;
+    }
+
+    if(fp != NULL) {
+        fclose(fp);
+        fp == NULL;
+    }
+}
+
 /**
  *  work02
  *  2、实现配置文件读写的功能 key = value格式
@@ -458,9 +496,83 @@ void work02() {
     }
 }
 
+/**
+ *  work03
+ *  3、文件拷贝程序
+ */
+#define SIZE 1024 * 2 // 每次读写2K数据
+void work03(void) {
+    int cmd = 0;
+    char rpath[256] = {0};
+    char wpath[256] = {0};
+    FILE *rfp = NULL;
+    FILE *wfp = NULL;
+    char buf[SIZE] = {0};
+    int n = 0;
+    while(1) {
+        printf("==============================\r\n");
+        printf("1 copy\r\n");
+        printf("2 sls\r\n");
+        printf("3 exit\r\n");
+        printf("==============================\r\n");
+        printf("cmd: ");
+        scanf("%d", &cmd);
+        switch(cmd) {
+            case 1:
+                printf("please input source file: ");
+                scanf("%s", rpath);
+
+                printf("please input destination file: ");
+                scanf("%s", wpath);
+
+                if(strcmp(rpath, wpath) == 0) {
+                    printf("The source file and destination file must be different\r\n");
+                    break;
+                }
+
+                rfp = fopen(rpath, "rb");
+                if(rfp == NULL) {
+                    perror("rpath fopen");
+                    break;
+                }
+
+                wfp = fopen(rpath, "wb");
+                if(wfp == NULL) {
+                    perror("wpath fopen");
+                    break;
+                }
+
+                do {
+                    n = 0;
+                    n = fread(buf, sizeof(char), SIZE, rfp);
+                    printf("copy: %d\r\n", n);
+                    fwrite(buf, sizeof(char), n, wfp);
+                } while(n > 0);
+                printf("copy ok\r\n");
+                if(wfp != NULL) {
+                    fclose(wfp);
+                    wfp = NULL;
+                }
+                if(rfp != NULL) {
+                    fclose(rfp);
+                    rfp = NULL;
+                }
+
+                break;
+            case 2:
+                system("cls");
+                break;
+            default:
+                exit(0);
+                break;
+        }
+
+    }
+}
+
 int main() {
     setbuf(stdout,NULL);
-    work02();
+    work03();
     // printf("Hello, World!\n");
     system("pause");
     return 0;
