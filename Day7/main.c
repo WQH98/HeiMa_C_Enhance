@@ -126,14 +126,221 @@ int SList_Print(day7_03_Node *head) {
     return 0;
 }
 
+// 插入结点
+// 在值为x的结点前 插入值为y的结点 若值为x的值不存在 则插在表尾
+int SList_NodeInset(day7_03_Node *head, int x, int y) {
+    if(head == NULL) {
+        return 0;
+    }
+    day7_03_Node *pPre = head;
+    day7_03_Node *pCur = head->next;
+
+    while(pCur != NULL) {
+
+        if(pCur->id == x) {
+
+            break;
+        }
+        // pPre指向pCur位置
+        pPre = pCur;
+        // pCur指向下一个结点
+        pCur = pCur->next;
+    }
+
+    // 2种情况
+    // 1、找到匹配的结点 pCur为匹配结点 pPre为pCur上一个结点
+    // 2、没找到匹配结点 pCur为空结点 pPer为最后一个结点
+    // 给新结点动态分配空间
+    day7_03_Node *pNew = (day7_03_Node *)malloc(sizeof(day7_03_Node));
+    if(pNew == NULL) {
+        return -2;
+    }
+    // 给pNew的成员变量赋值
+    pNew->id = y;
+    pNew->next = NULL;
+
+    // 插入到指定位置
+    pPre->next = pNew;   // pPre下一个指向pNwe
+    pNew->next = pCur;   // pNew下一个指向pCur
+
+    return 0;
+}
+
+// 删除第一个值为x的结点
+int SList_NodeDel(day7_03_Node *head, int x) {
+    if(head == NULL) {
+        return -1;
+    }
+
+    day7_03_Node *pPre = head;
+    day7_03_Node *pCur = head->next;
+    // 标志位 0：没有找到 1：找到了
+    int flag = 0;
+    while(pCur->next != NULL) {
+        // 找到了匹配结点
+        if(pCur->id == x) {
+            flag = 1;
+            break;
+        }
+
+        pPre = pCur;
+        pCur = pCur->next;
+    }
+    if(flag == 1) {
+        // pPre的下一个结点指向pCur的下一个结点
+        pPre->next = pCur->next;
+        if(pCur != NULL) {
+            free(pCur);
+            pCur = NULL;
+        }
+    }
+    if(0 == flag) {
+        printf("don't find the value\r\n");
+        return -2;
+    }
+
+    return 0;
+}
+
+// 清空链表 释放所有结点
+int SList_NodeDsetroy(day7_03_Node *head) {
+    if(head == NULL) {
+        return -1;
+    }
+    int i = 0;
+    day7_03_Node *tmp = NULL;
+    while(head != NULL) {
+        // 保存head的下一个结点
+        tmp = head->next;
+        free(head);
+        head = NULL;
+        // head指向tmp
+        head = tmp;
+        i++;
+    }
+    printf("i = %d\r\n", i);
+
+    return 0;
+}
+
 void basic_operations_for_item_lists() {
     day7_03_Node *head = NULL;
     head = SList_Creat();   // 创建头结点
     SList_Print(head);
+    SList_NodeInset(head, 5, 4);
+    SList_Print(head);
+    SList_NodeDel(head, 5);
+    SList_Print(head);
+    SList_NodeDsetroy(head);
+    free(head);
+    head = NULL;
+}
+
+
+// 04、函数指针
+// 指针函数（()的优先级比*高 所以这是个函数 返回值是指针类型的函数）
+int *fun_04() {
+    int *p = (int *)malloc(sizeof(int));
+
+    return p;
+}
+
+int fun2_04(int a) {
+    printf("a ========= %d\r\n", a);
+    return 0;
+}
+
+void function_pointer(void) {
+    // 函数指针 它是指针 指向函数的指针
+    // 定义函数指针变量有3种方式
+    // 1、先定义函数类型 根据类型定义指针变量 （不常用的定义方式）
+    // 有typedef是类型 没有就是变量
+    typedef int FUN2_04(int a);   // fun2_04函数类型
+    // 函数指针变量
+    // 指针函数指向的变量有要求 返回值要int类型 参数是一个int类型
+    FUN2_04 *p1 = NULL;
+    p1 = fun2_04;  // p1指向fun2_04函数
+    fun2_04(5); // 传统调用
+    p1(6);    // 函数指针变量调用方式
+
+    // 2、先定义函数指针变量 根据类型定义指针变量（常用）
+    typedef int (*PFUN2_04)(int a);   // PFUN2_04 函数指针类型
+    PFUN2_04 p2 = fun2_04;   // p2指向fun2_04函数
+    p2(7);
+
+    // 3、直接定义函数指针变量（常用）
+    int (*p3)(int a) = fun2_04;
+    p3(8);
+    int (*p4)(int a);
+    p4 = fun2_04;
+    p4(9);
+}
+
+// 05、函数指针的应用
+void add() {
+    printf("add\r\n");
+}
+void minus() {
+    printf("minus\r\n");
+}
+void multi() {
+    printf("multi\r\n");
+}
+void divide() {
+    printf("divide\r\n");
+}
+void myexit() {
+    exit(0);
+}
+
+void application_of_function_pointers() {
+#if 0
+    char cmd[100];
+    while(1) {
+        printf("please enter cmd:");
+        scanf("%s", cmd);
+        if(strcmp(cmd, "add") == 0) {
+            add();
+        }
+        else if(strcmp(cmd, "min") == 0) {
+            minus();
+        }
+        else if(strcmp(cmd, "mul") == 0) {
+            multi();
+        }
+        else if(strcmp(cmd, "div") == 0) {
+            divide();
+        }
+        else if(strcmp(cmd, "exit") == 0) {
+            myexit();
+        }
+    }
+#endif
+
+    void(*fun1_05)() = add;
+    fun1_05();
+    // 菜单越多 函数越多 这样写越简洁
+    // 函数指针数组
+    void (*fun2_05[5])() = {add, minus, multi, divide, myexit};
+    // 指针数组
+    char *buf[] = {"add", "min", "mul", "div", "exit"};
+
+    char cmd[100];
+    int i = 0;
+    while(1) {
+        printf("please enter cmd:");
+        scanf("%s", cmd);
+        for(i = 0; i < 5; i++) {
+            if(strcmp(cmd, buf[i]) == 0) {
+                fun2_05[i]();
+                break;
+            }
+        }
+    }
 }
 
 int main() {
-    basic_operations_for_item_lists();
+    application_of_function_pointers();
     printf("Hello, World!\n");
     return 0;
 }
