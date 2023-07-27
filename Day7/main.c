@@ -339,8 +339,417 @@ void application_of_function_pointers() {
     }
 }
 
+// 6、回调函数
+int add_06(int a, int b) {
+    return a + b;
+}
+int minus_06(int a, int b) {
+    return a - b;
+}
+// 函数的参数是变量 函数指针也是变量
+// 框架 固定变量
+// 多态：多种形态 调用同一接口 但是不一样的表现
+void fun1_06(int x, int y, int(*p)(int a, int b)) {
+    printf("fun1_06\r\n");
+    int a = p(x, y);   // 回调函数
+    printf("a = %d\r\n", a);
+}
+typedef int(*P)(int a, int b);
+void fun2_06(int x, int y, P p) {
+    printf("fun1_06\r\n");
+    int a = p(x, y);   // 回调函数
+    printf("a = %d\r\n", a);
+}
+void callback_function() {
+    fun1_06(1, 2, add_06);
+    fun2_06(10, 5, minus_06);
+}
+
+/**
+ *  work01
+ *  struct teacher {
+ *      int id;
+ *      struct teacher t1;
+ *  };
+ *  这种结构体类型为什么能够编译过？
+ *  编译不通过 结构体可以嵌套另外一个结构体的任何类型变量
+ *  但是不能嵌套本结构体的普通变量 因为本结构体的类型大小无法确定（类型的本质是固定大小的内存块的别名）
+ *  结构体可以嵌套本结构体指针变量 因为指针变量的空间能确定
+ */
+
+
+/**
+ *  work02
+ *  简述指针和链表的区别
+ *  数组：一次性分配一块连续的内存区域
+ *      优点：随机访问元素效率高
+ *      缺点：(1) 需要分配一块连续的内存区域
+ *           (2) 删除和插入某个元素的效率低
+ *  链表：现实生活中的灯笼
+ *      优点：(1) 不需要一块连续的内存区域
+ *           (2) 删除和插入某个元素的效率高
+ *      缺点：随机访问元素效率低
+ */
+
+/**
+ *  work03
+ *  把上面单向列表的基本操作重新敲一遍
+ *  // 创建头结点 链表的头结点地址由函数返回
+ *  SList *SListCreat();
+ *  // 遍历节点
+ *  // 顺序输出单向链表各项结点数据域中的内容
+ *  int SListPrint(SList *pHead);
+ *  // 在值为x的结点前 插入值为y的结点
+ *  // 若值为x的结点不存在 则插在末尾
+ *  int SListNodeInsert(SList *pHead, int x, int y);
+ *  // 删除第一个值为x的结点
+ *  int SListNodeDel(SList *pHead, int x);
+ *  // 释放所有结点
+ *  int SListDestroy(SList *pHead);
+ */
+
+typedef struct SList {
+    int id;
+    struct SList *next;
+} SList;
+
+SList *SListCreat() {
+    SList *head = NULL;
+    head = (SList *)malloc(sizeof(SList));
+    head->id = -1;
+    head->next = NULL;
+
+    SList *pcur = head;
+    SList *pnew = NULL;
+
+    int data = 0;
+    while(1) {
+        printf("please enter the id: ");
+        scanf("%d", &data);
+        if(data == -1) {
+            break;
+        }
+        pnew = (SList *)malloc(sizeof(SList));
+        if(pnew == NULL) {
+            printf("pnew malloc failed please enter again\r\n");
+            continue;
+        }
+        pnew->id = data;
+        pnew->next = NULL;
+        pcur->next = pnew;
+        pnew->next = NULL;
+        pcur = pnew;
+    }
+
+    return head;
+}
+
+int SListPrint(SList *pHead) {
+    if(pHead == NULL) {
+        return -1;
+    }
+
+    SList *pcur = pHead->next;
+    printf("pHead -> ");
+    while(pcur != NULL) {
+        printf("%d -> ", pcur->id);
+        pcur = pcur->next;
+    }
+    printf("NULL\r\n");
+    return 0;
+}
+
+int SListNodeInsert(SList *pHead, int x, int y) {
+
+    if(pHead == NULL) {
+        return -1;
+    }
+
+    SList *ppre = pHead;
+    SList *pcur = NULL;
+    pcur = ppre->next;
+    while(pcur != NULL) {
+        if(pcur->id == x) {
+            break;
+        }
+        ppre = pcur;
+        pcur = pcur->next;
+    }
+    SList *pnew = (SList *)malloc(sizeof(SList));
+    if(pnew == NULL) {
+        return -2;
+    }
+    pnew->id = y;
+    pnew->next = NULL;
+
+    ppre->next = pnew;
+    pnew->next = pcur;
+
+    return 0;
+}
+
+int SListNodeDel(SList *pHead, int x) {
+    if(pHead == NULL) {
+        return -1;
+    }
+
+    SList *ppre = pHead;
+    SList *pcur = pHead->next;
+    int flag = 0;
+    while(pcur != NULL) {
+        if(pcur->id == x) {
+            flag = 1;
+            break;
+        }
+        ppre = pcur;
+        pcur = pcur->next;
+    }
+    if(flag == 1) {
+        ppre->next = pcur->next;
+        if(pcur != NULL) {
+            free(pcur);
+            pcur = NULL;
+        }
+    }
+    else {
+        printf("don't find the value in the list\r\n");
+        return -2;
+    }
+    return 0;
+}
+
+int SListDestroy(SList *pHead) {
+    if(pHead == NULL) {
+        return -1;
+    }
+    int i = 0;
+    SList *tmp = NULL;
+    while(pHead != NULL) {
+        tmp = pHead->next;
+        if(pHead != NULL) {
+            free(pHead);
+            pHead = NULL;
+            i++;
+        }
+        pHead = tmp;
+    }
+    printf("i = %d\r\n", i);
+    return 0;
+}
+
+void work03() {
+    SList *head = NULL;
+    head = SListCreat();
+    SListPrint(head);
+    SListNodeInsert(head, 5, 4);
+    SListPrint(head);
+    SListNodeDel(head, 4);
+    SListPrint(head);
+    SListNodeDel(head, 4);
+    SListPrint(head);
+    SListNodeDel(head, 4);
+    SListPrint(head);
+    SListDestroy(head);
+    head = NULL;
+}
+
+/**
+ *  work04
+ *  链表练习
+ *  // 删除值为x的所有结点
+ *  int SListNodeDelPro(SList *pHead, int x);
+ *
+ *  // 链表结点排序
+ *  int SListNodeSort(SList *pHead);
+ *  // 注意 排序 除了数据域要交换 next指针也需要交换
+ *      if(pPre->id > pCur->id) {
+ *          // 交换数字域
+ *          tmp = *pCur;
+ *          *pCur = *pPre;
+ *          *pPre = *tmp;
+ *
+ *          // 交换指针域
+ *          tmp.next = pCur->next;
+ *          pCur->next = pPre->next;
+ *          pPre->next = tmp.next;
+ *      }
+ *  // 假如原来链表是升序的 升序插入新结点
+ *  // 不能插入结点后再升序 是升序插入新结点
+ *  int SListNodeInsertPro(SList *pHead, int x);
+ *  // 翻转列表的结点（不是排序 是翻转）
+ *  int SListNodeReveres(SList *pHead);
+ *
+ *  创建头结点
+ *  打印输出
+ *  在4前面插入3
+ *  打印输出
+ *  删除第一个值为4的结点
+ *  打印输出
+ *  删除所有值为3的结点
+ *  打印输出
+ *  链表结点排序
+ *  打印输出
+ *  升序插入5
+ *  打印输出
+ *  翻转列表结点
+ *  打印输出
+ */
+
+int SListNodeDelPro(SList *pHead, int x) {
+
+    if(pHead == NULL) {
+        return -1;
+    }
+
+    SList *ppre = pHead;
+    SList *pcur = pHead->next;
+    SList *tmp = NULL;
+
+    while(pcur != NULL) {
+        if(pcur->id == x) {
+            ppre->next = pcur->next;
+            if(pcur != NULL) {
+                free(pcur);
+                pcur = ppre->next;
+            }
+            continue;
+        }
+        ppre = pcur;
+        pcur = pcur->next;
+    }
+
+    return 0;
+}
+
+int SListNodeSort(SList *pHead) {
+
+    if(pHead == NULL) {
+        return -1;
+    }
+
+    SList *ppre = pHead;
+    SList *pcur = pHead->next;
+    SList *end = NULL;
+
+    while(ppre != end){
+        while(pcur != end) {
+            if(ppre->id > pcur->id) {
+                SList tmp = *ppre;
+                *ppre = *pcur;
+                *pcur = tmp;
+
+                tmp.next = pcur->next;
+                pcur->next = ppre->next;
+                ppre->next = tmp.next;
+            }
+            ppre = pcur;
+            pcur = pcur->next;
+        }
+        end = ppre;
+        ppre = pHead;
+        pcur = pHead->next;
+    }
+    return 0;
+}
+
+int SListNodeInsertPro(SList *pHead, int x) {
+    if(pHead == NULL) {
+        return -1;
+    }
+
+    SList *pper = pHead;
+    SList *pcur = pHead->next;
+    SList *pnew = (SList *)malloc(sizeof(SList));
+    pnew->id = x;
+    pnew->next = NULL;
+
+    if(x < pcur->id) {
+        pper->next = pnew;
+        pnew->next = pcur;
+        return 0;
+    }
+
+    while(pper->next != NULL) {
+        if(x > pper->id && x <= pcur->id) {
+            pper->next = pnew;
+            pnew->next = pcur;
+            return 0;
+        }
+        pper = pcur;
+        pcur = pcur->next;
+    }
+    pper->next = pnew;
+    pnew->next = pcur;
+    return 0;
+}
+
+int SListNodeReveres(SList *pHead) {
+    if(pHead == NULL) {
+        return -1;
+    }
+
+    SList *pper = pHead->next;
+    SList *pcur = pper->next;
+    SList *paft = pcur->next;
+
+    pper->next = NULL;
+
+    while(pcur != NULL) {
+
+        pcur->next = NULL;
+        pcur->next = pper;
+
+        pper = pcur;
+        pcur = paft;
+        if(paft != NULL) {
+            paft = paft->next;
+        }
+    }
+
+    pHead->next = pper;
+
+    return 0;
+}
+
+void work04() {
+    SList *head = NULL;
+    head = SListCreat();
+    SListPrint(head);
+    SListNodeInsert(head, 4, 3);
+    SListPrint(head);
+    SListNodeDel(head, 4);
+    SListPrint(head);
+    SListNodeDelPro(head, 3);
+    SListPrint(head);
+    SListNodeSort(head);
+    SListPrint(head);
+    SListNodeInsertPro(head, 9);
+    SListPrint(head);
+    SListNodeReveres(head);
+    SListPrint(head);
+    SListDestroy(head);
+    head = NULL;
+}
+
+/**
+ *  work05
+ *  通过递归实现1+2+3+...+100的累加
+ */
+
+int add_05(int x) {
+    if(x >= 100) {
+        return 100;
+    }
+    return x + add_05(x+1);
+}
+
+void work05() {
+    printf("add = %d\r\n", add_05(1));
+}
+
 int main() {
-    application_of_function_pointers();
+    setbuf(stdout,NULL);
+    work05();
     printf("Hello, World!\n");
     return 0;
 }
