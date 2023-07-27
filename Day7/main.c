@@ -683,6 +683,71 @@ int SListNodeInsertPro(SList *pHead, int x) {
     return 0;
 }
 
+int SListNodeInsertPro_Heima(SList *pHead, int x) {
+
+    if(pHead == NULL) {
+        return -1;
+    }
+
+    SList *ppre = pHead;
+    SList *pcur = NULL;
+    pcur = ppre->next;
+    while(pcur != NULL) {
+        if(pcur->id > x) {
+            break;
+        }
+        ppre = pcur;
+        pcur = pcur->next;
+    }
+    SList *pnew = (SList *)malloc(sizeof(SList));
+    if(pnew == NULL) {
+        return -2;
+    }
+    pnew->id = x;
+    pnew->next = NULL;
+
+    ppre->next = pnew;
+    pnew->next = pcur;
+
+    return 0;
+}
+
+
+int SListNodeSort_Heima(SList *pHead) {
+    if(pHead == NULL) {
+        return -1;
+    }
+
+    SList *ppre = NULL;
+    SList *pcur = NULL;
+    SList tmp;
+
+    for(ppre = pHead->next; ppre->next != NULL; ppre = ppre->next) {
+        for(pcur = ppre->next; pcur != NULL; pcur = pcur->next) {
+            if(ppre->id > pcur->id) {
+#if 1
+                // 只交换数字域
+                tmp.id = ppre->id;
+                ppre->id = pcur->id;
+                pcur->id = tmp.id;
+#endif
+
+#if 0
+                // 交换数据域
+                tmp = *ppre;
+                *ppre = *pcur;
+                *pcur = tmp;
+                // 交换指针域
+                tmp.next = pcur->next;
+                pcur->next = ppre->next;
+                ppre->next = tmp.next;
+#endif
+            }
+        }
+    }
+
+}
+
 int SListNodeReveres(SList *pHead) {
     if(pHead == NULL) {
         return -1;
@@ -711,6 +776,28 @@ int SListNodeReveres(SList *pHead) {
     return 0;
 }
 
+int SListNodeReveres_Heima(SList *pHead) {
+    if(pHead == NULL) {
+        return -1;
+    }
+
+    SList *pper = pHead->next;
+    SList *pcur = pper->next;
+    pper->next = NULL;
+    SList *tmp = NULL;
+
+    while(pcur != NULL) {
+        tmp = pcur->next;
+        pcur->next = pper;
+        pper = pcur;
+        pcur = tmp;
+    }
+
+    pHead->next = pper;
+
+    return 0;
+}
+
 void work04() {
     SList *head = NULL;
     head = SListCreat();
@@ -721,11 +808,11 @@ void work04() {
     SListPrint(head);
     SListNodeDelPro(head, 3);
     SListPrint(head);
-    SListNodeSort(head);
+    SListNodeSort_Heima(head);
     SListPrint(head);
-    SListNodeInsertPro(head, 9);
+    SListNodeInsertPro_Heima(head, 9);
     SListPrint(head);
-    SListNodeReveres(head);
+    SListNodeReveres_Heima(head);
     SListPrint(head);
     SListDestroy(head);
     head = NULL;
@@ -749,7 +836,7 @@ void work05() {
 
 int main() {
     setbuf(stdout,NULL);
-    work05();
+    work04();
     printf("Hello, World!\n");
     return 0;
 }
